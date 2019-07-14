@@ -38,23 +38,4 @@ public class SampleController {
 		LOGGER.info("Finding all students");
 		return sampleDAO.findOne(id);
 	}
-
-	private List<StudentDTO> createStudents() {
-		StudentDTO tony = new StudentDTO();
-		tony.setEmailAddress("tony.tester@gmail.com");
-		tony.setName("Tony Tester");
-		tony.setPurchasedPackage("master");
-
-		StudentDTO nick = new StudentDTO();
-		nick.setEmailAddress("nick.newbie@gmail.com");
-		nick.setName("Nick Newbie");
-		nick.setPurchasedPackage("starter");
-
-		StudentDTO ian = new StudentDTO();
-		ian.setEmailAddress("ian.intermediate@gmail.com");
-		ian.setName("Ian Intermediate");
-		ian.setPurchasedPackage("intermediate");
-
-		return Arrays.asList(tony, nick, ian);
-	}
 }

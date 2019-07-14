@@ -16,6 +16,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -48,7 +49,7 @@ import net.petrikainulainen.springbatch.sample.SampleDTO;
 public class CsvFileToDatabaseJobConfig {
 
     private static final String PROPERTY_CSV_SOURCE_FILE_PATH = "csv.to.database.job.source.file.path";
-    private static final String QUERY_INSERT_STUDENT = "INSERT " +
+    private static final String QUERY_INSERT_SAMPLE = "INSERT " +
     
             "INTO samples(id, device_id, timestamp, app_version, database_version, battery_stage, country_code, created, battery_level, memory_active, memory_free, memory_inactive, memory_user, memory_wired, network_status, screen_brightness, screen_on, timezone, triggered, updated) " +
             "VALUES (:id, :deviceId, :timestamp, :appVersion, :databaseVersion, :batteryStage, :countryCode, :created, :batteryLevel, :memoryActive, :memoryFree, :memoryInactive, :memoryUser, :memoryWired, :networkStatus, :screenBrightness, :screenOn, :timezone, :triggered, :updated)";
@@ -70,6 +71,11 @@ public class CsvFileToDatabaseJobConfig {
 
         return csvFileReader;
     }
+    
+	@Bean
+	public SkipPolicy fileVerificationSkipper() {
+		return new FileVerificationSkipper();
+	}
 
     private LineMapper<SampleDTO> createStudentLineMapper() {
         DefaultLineMapper<SampleDTO> studentLineMapper = new DefaultLineMapper<>();
@@ -116,7 +122,7 @@ public class CsvFileToDatabaseJobConfig {
         databaseItemWriter.setDataSource(dataSource);
         databaseItemWriter.setJdbcTemplate(jdbcTemplate);
 
-        databaseItemWriter.setSql(QUERY_INSERT_STUDENT);
+        databaseItemWriter.setSql(QUERY_INSERT_SAMPLE);
 
         ItemSqlParameterSourceProvider<SampleDTO> sqlParameterSourceProvider = studentSqlParameterSourceProvider();
         databaseItemWriter.setItemSqlParameterSourceProvider(sqlParameterSourceProvider);
@@ -135,9 +141,9 @@ public class CsvFileToDatabaseJobConfig {
                                StepBuilderFactory stepBuilderFactory) {
         return stepBuilderFactory.get("csvFileToDatabaseStep")
                 .<SampleDTO, SampleDTO>chunk(1)
-                .reader(csvFileItemReader)
+                .reader(csvFileItemReader).faultTolerant().skipPolicy(fileVerificationSkipper())
                 .processor(csvFileItemProcessor)
-                .writer(csvFileDatabaseItemWriter)
+                .writer(csvFileDatabaseItemWriter).faultTolerant().skipPolicy(fileVerificationSkipper())
                 .build();
     }
 
