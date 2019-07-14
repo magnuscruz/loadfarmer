@@ -1,5 +1,6 @@
 package net.petrikainulainen.springbatch.sample;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -17,8 +18,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "sample")
 @Entity(name = "samples")
-public class SampleDTO {
+public class SampleDTO implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7052919858371559142L;
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;

@@ -1,51 +1,60 @@
 package net.petrikainulainen.springbatch.sample;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.petrikainulainen.springbatch.dao.SampleDAO;
 import net.petrikainulainen.springbatch.student.StudentDTO;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Petri Kainulainen
  */
-//@RestController
-//@RequestMapping("/api/student")
+@RestController
+@RequestMapping("/api/sample")
 public class SampleController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SampleController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SampleController.class);
 
-    @RequestMapping(method = RequestMethod.GET)
-    public List<StudentDTO> findStudents() {
-        LOGGER.info("Finding all students");
+	@Autowired
+	private SampleDAO sampleDAO;
 
-        List<StudentDTO> students = createStudents();
-        LOGGER.info("Found {} students", students.size());
+	@RequestMapping(value = "/all/{pageSize}/{index}", method = RequestMethod.GET)
+	public List<SampleDTO> findAllSamples(@PathVariable("pageSize") int pageSize, @PathVariable("index") int index) {
+		LOGGER.info("Finding all students");
+		return sampleDAO.findAll(pageSize, index);
+	}
 
-        return students;
-    }
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public SampleDTO findByIdSample(@PathVariable("id") long id) {
+		LOGGER.info("Finding all students");
+		return sampleDAO.findOne(id);
+	}
 
-    private List<StudentDTO> createStudents() {
-        StudentDTO tony = new StudentDTO();
-        tony.setEmailAddress("tony.tester@gmail.com");
-        tony.setName("Tony Tester");
-        tony.setPurchasedPackage("master");
+	private List<StudentDTO> createStudents() {
+		StudentDTO tony = new StudentDTO();
+		tony.setEmailAddress("tony.tester@gmail.com");
+		tony.setName("Tony Tester");
+		tony.setPurchasedPackage("master");
 
-        StudentDTO nick = new StudentDTO();
-        nick.setEmailAddress("nick.newbie@gmail.com");
-        nick.setName("Nick Newbie");
-        nick.setPurchasedPackage("starter");
+		StudentDTO nick = new StudentDTO();
+		nick.setEmailAddress("nick.newbie@gmail.com");
+		nick.setName("Nick Newbie");
+		nick.setPurchasedPackage("starter");
 
-        StudentDTO ian = new StudentDTO();
-        ian.setEmailAddress("ian.intermediate@gmail.com");
-        ian.setName("Ian Intermediate");
-        ian.setPurchasedPackage("intermediate");
+		StudentDTO ian = new StudentDTO();
+		ian.setEmailAddress("ian.intermediate@gmail.com");
+		ian.setName("Ian Intermediate");
+		ian.setPurchasedPackage("intermediate");
 
-        return Arrays.asList(tony, nick, ian);
-    }
+		return Arrays.asList(tony, nick, ian);
+	}
 }
